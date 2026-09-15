@@ -13,7 +13,7 @@ from av.sidedata.encparams import VideoEncParams
 from av.sidedata.sidedata import Type
 from av.subtitles.subtitle import SubtitleSet
 
-from .common import TestCase, fate_suite
+from .common import TestCase, fate_suite, has_libx264
 
 
 @functools.cache
@@ -358,6 +358,9 @@ class TestDecode(TestCase):
         assert HWACCEL_DEVICE_TYPE in hwdevices_available, (
             f"{HWACCEL_DEVICE_TYPE} not available"
         )
+
+        if not has_libx264:
+            pytest.skip("requires libx264")
 
         test_video_path = "tests/assets/black.mp4"
         make_h264_test_video(test_video_path)

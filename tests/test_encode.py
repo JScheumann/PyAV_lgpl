@@ -14,7 +14,7 @@ from av import AudioFrame, VideoFrame
 from av.audio.stream import AudioStream
 from av.video.stream import VideoStream
 
-from .common import TestCase, fate_suite, has_pillow
+from .common import TestCase, fate_suite, has_libx264, has_pillow
 
 WIDTH = 320
 HEIGHT = 240
@@ -471,8 +471,8 @@ def encode_frames_with_qminmax(
     Returns: total length of the encoded bytes.
     """
 
-    if av.codec.Codec("h264", "w").name != "libx264":
-        pytest.skip()
+    if not has_libx264:
+        pytest.skip("requires libx264")
 
     file = io.BytesIO()
     container = av.open(file, mode="w", format="mp4")

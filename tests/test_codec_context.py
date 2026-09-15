@@ -23,7 +23,7 @@ from av.codec.codec import UnknownCodecError
 from av.codec.context import OptionFlags, OptionType
 from av.video.frame import PictureType
 
-from .common import TestCase, fate_suite
+from .common import TestCase, fate_suite, has_libx264
 
 
 class Options(TypedDict, total=False):
@@ -619,6 +619,7 @@ class TestEncoding(TestCase):
             assert frame.layout.nb_channels == 2
 
 
+@pytest.mark.skipif(not has_libx264, reason="requires libx264")
 class TestNewlyExposedFields(TestCase):
     def test_encoder_scalars_roundtrip(self) -> None:
         ctx = av.CodecContext.create("libx264", "w")

@@ -7,7 +7,7 @@ import pytest
 import av
 import av.datasets
 
-from .common import fate_suite, sandboxed
+from .common import fate_suite, has_libx264, sandboxed
 
 
 def test_video_remux() -> None:
@@ -98,7 +98,7 @@ def test_add_mux_stream_matroska_extradata() -> None:
     ``add_mux_stream`` extracts it from the bitstream so the file is written and
     stays decodable.
     """
-    if av.codec.Codec("h264", "w").name != "libx264":
+    if not has_libx264:
         pytest.skip("requires libx264")
 
     # Encode without a global header, so the packets carry annex-b parameter
@@ -194,7 +194,7 @@ def test_remux_keeps_keyframe_with_none_dts() -> None:
     flushing packet (``size == 0``), not every ``dts is None`` packet, otherwise
     the keyframe is dropped and the output is undecodable.
     """
-    if av.codec.Codec("h264", "w").name != "libx264":
+    if not has_libx264:
         pytest.skip("requires libx264")
 
     source = _make_b_frame_mkv()

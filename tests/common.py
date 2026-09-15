@@ -19,6 +19,17 @@ try:
 except ImportError:
     has_pillow = False
 
+# Some FFmpeg builds (e.g. LGPL-only builds that exclude x264/x265) have no
+# H.264 encoder at all. av.codec.Codec("h264", "w") raises UnknownCodecError
+# in that case rather than returning a different encoder, so tests that need
+# libx264 specifically must check this flag *before* looking the codec up.
+try:
+    from av.codec import Codec as _Codec
+
+    has_libx264 = _Codec("libx264", "w").name == "libx264"
+except Exception:
+    has_libx264 = False
+
 if TYPE_CHECKING:
     from collections.abc import Callable
     from typing import Any, TypeVar

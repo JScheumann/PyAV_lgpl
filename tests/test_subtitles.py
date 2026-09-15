@@ -1,11 +1,13 @@
 import io
 from typing import cast
 
+import pytest
+
 import av
 from av.codec.context import CodecContext
 from av.subtitles.subtitle import AssSubtitle, BitmapSubtitle, Subtitle, SubtitleSet
 
-from .common import TestCase, fate_suite
+from .common import TestCase, fate_suite, has_libx264
 
 
 class TestSubtitle:
@@ -130,6 +132,9 @@ class TestSubtitleEncoding(TestCase):
 
     def test_subtitle_encode_mp4(self) -> None:
         """Test encoding subtitles to MP4 container."""
+        if not has_libx264:
+            pytest.skip("requires libx264")
+
         from av.subtitles.subtitle import SubtitleSet
 
         ass_header = b"""[Script Info]
