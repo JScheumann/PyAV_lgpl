@@ -72,7 +72,9 @@ jobs:
           CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: delvewheel repair --add-path C:\cibw\vendor\bin -w {dest_dir} {wheel}
           CIBW_BUILD: "cp312* cp314t*"
           CIBW_BUILD_FRONTEND: uv
-          CIBW_TEST_COMMAND: mv {project}/av {project}/av.disabled && python -m pytest {package}/tests && mv {project}/av.disabled {project}/av
+          # The bundled FFmpeg is a VP8-decode-only LGPL build, so the full test
+          # suite (which needs many codecs and demuxers) cannot run against it.
+          CIBW_TEST_COMMAND: mv {project}/av {project}/av.disabled && python -m pytest {package}/tests/test_lgpl_vp8_wheel.py && mv {project}/av.disabled {project}/av
           CIBW_TEST_REQUIRES: pytest numpy
         run: |
           uv pip install cibuildwheel delvewheel
@@ -131,10 +133,3 @@ jobs:
           files: dist/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Publish to PyPI
-        if: github.event_name == 'release' && github.event.action == 'published'
-        uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          user: __token__
-          password: ${{ secrets.PYPI_TOKEN }}

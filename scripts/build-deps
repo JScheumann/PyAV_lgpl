@@ -16,29 +16,6 @@ fi
 mkdir -p "$PYAV_LIBRARY_ROOT"
 mkdir -p "$PYAV_LIBRARY_PREFIX"
 
-# Add CUDA support if available
-CONFFLAGS_NVIDIA=""
-if [[ -e /usr/local/cuda ]]; then
-    # Get Nvidia headers for ffmpeg
-    cd $PYAV_LIBRARY_ROOT
-    if [[ ! -e "$PYAV_LIBRARY_ROOT/nv-codec-headers" ]]; then
-        git clone https://github.com/FFmpeg/nv-codec-headers.git
-        cd nv-codec-headers
-        make -j4
-        make PREFIX="$PYAV_LIBRARY_PREFIX" install
-    fi
-
-    PKG_CONFIG_PATH="/usr/local/lib/pkgconfig:$PKG_CONFIG_PATH"
-    CONFFLAGS_NVIDIA="--enable-cuda-nvcc \
-                      --enable-nonfree \
-                      --enable-libnpp \
-                      --extra-cflags=-I/usr/local/cuda/include \
-                      --extra-ldflags=-L/usr/local/cuda/lib64"
-else
-    echo "WARNING: Did not find cuda libraries in /usr/local/cuda..."
-    echo "         Building without NVIDIA NVENC/NVDEC support"
-fi
-
 # Some riscv64 toolchains include the Zbb extension by default. FFmpeg's runtime
 # CPU feature checks then get compiled away, causing SIGILL on hardware (like
 # the RISE RISC-V Runners) that doesn't actually implement Zbb
@@ -73,19 +50,16 @@ echo ./configure
     --disable-stripping \
     --disable-static \
     --enable-shared \
-    --enable-gpl \
     --enable-version3 \
     --disable-libxml2 \
     --disable-xlib \
     --disable-openssl \
     --enable-debug=3 \
-    --enable-libx264 \
     --disable-bsfs \
     --enable-bsf=chomp,extract_extradata,h264_mp4toannexb,setts \
     --disable-filters \
     --enable-filter=abuffer,abuffersink,aformat,aresample,atempo,buffer,buffersink,bwdif,color,ebur128,loudnorm,lutrgb,overlay,palettegen,scale,testsrc,vflip,volume \
     --disable-avx512 \
-    $CONFFLAGS_NVIDIA \
     $CONFFLAGS_RISCV \
     --prefix="$PYAV_LIBRARY_PREFIX" \
     || exit 2

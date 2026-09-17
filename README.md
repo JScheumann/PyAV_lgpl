@@ -1,3 +1,24 @@
+PyAV (LGPL, VP8-decode-only fork)
+=================================
+
+This is a fork of [PyAV](https://github.com/PyAV-Org/PyAV) whose release
+wheels bundle a **VP8/VP9-decode-only, LGPL-only** FFmpeg from
+[JScheumann/pyav-ffmpeg-lgpl](https://github.com/JScheumann/pyav-ffmpeg-lgpl)
+instead of the upstream GPL build. The Python side is unchanged; what differs:
+
+- `scripts/ffmpeg-latest.json` points at the fork's release, so wheels contain
+  no GPL code (no x264/x265) and, beyond the native VP8 and VP9 decoders, no codecs,
+  demuxers, protocols or filters at all.
+- The wheel job runs `tests/test_lgpl_vp8_wheel.py` (license check plus raw
+  VP8/VP9 -> RGB decodes) instead of the full suite, which needs many codecs.
+- The smoke workflow still builds a full FFmpeg from source for the regular
+  test suite, but without `--enable-gpl`/libx264.
+- Nothing is published to PyPI.
+
+Upstream README follows.
+
+---
+
 PyAV
 ====
 
