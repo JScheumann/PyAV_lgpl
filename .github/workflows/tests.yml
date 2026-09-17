@@ -114,6 +114,10 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     needs: [package-source, package-wheel, package-wheel-armv7l]
+    # The default GITHUB_TOKEN is read-only on this repository; attaching the
+    # wheels to the release needs write access to contents.
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v7
       - uses: actions/download-artifact@v7
@@ -123,7 +127,7 @@ jobs:
 
       - name: Publish to GitHub
         if: github.event_name == 'release'
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v3
         with:
           files: dist/*
         env:
