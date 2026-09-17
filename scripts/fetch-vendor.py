@@ -52,9 +52,33 @@ if not os.path.exists(tarball_file):
     logging.info(f"Downloading {tarball_url}")
     if not os.path.exists(args.cache_dir):
         os.mkdir(args.cache_dir)
+    # Download to a temporary name and only rename on success, so a failed or
+    # partial download never ends up in the cache. --fail makes HTTP errors
+    # (e.g. a rate-limit page from GitHub) a curl failure instead of silently
+    # saving the error body as the "tarball"; --retry covers transient ones.
+    partial_file = tarball_file + ".part"
     subprocess.check_call(
-        ["curl", "--location", "--output", tarball_file, "--silent", tarball_url]
+        [
+            "curl",
+            "--location",
+            "--fail",
+            "--silent",
+            "--show-error",
+            "--retry",
+            "5",
+            "--retry-delay",
+            "3",
+            "--output",
+            partial_file,
+            tarball_url,
+        ]
     )
+    with open(partial_file, "rb") as fp:
+        magic = fp.read(2)
+    if magic != b"\x1f\x8b":
+        os.remove(partial_file)
+        raise SystemExit(f"{tarball_url} did not return a gzip tarball (got {magic!r})")
+    os.replace(partial_file, tarball_file)
 
 logging.info(f"Extracting {tarball_name}")
 subprocess.check_call(["tar", "-C", args.destination_dir, "-xf", tarball_file])
