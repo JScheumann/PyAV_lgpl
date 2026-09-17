@@ -186,6 +186,9 @@ class TestCodecContext(TestCase):
             ctx.time_base = Fraction(1, 25)
 
     def test_encoder_extradata(self) -> None:
+        if not has_libx264:
+            pytest.skip("requires libx264")
+
         ctx = av.codec.Codec("h264", "w").create()
         assert ctx.extradata is None
         assert ctx.extradata_size == 0
@@ -195,6 +198,9 @@ class TestCodecContext(TestCase):
         assert ctx.extradata_size == 3
 
     def test_encoder_pix_fmt(self) -> None:
+        if not has_libx264:
+            pytest.skip("requires libx264")
+
         ctx = av.codec.Codec("h264", "w").create("video")
 
         assert ctx.pix_fmt is None
@@ -420,6 +426,9 @@ class TestEncoding(TestCase):
                 assert frame.format.name == pix_fmt
 
     def test_encoding_h264(self) -> None:
+        if not has_libx264:
+            pytest.skip("requires libx264")
+
         self.video_encoding("h264", {"crf": "19"})
 
     def test_encoding_mpeg4(self) -> None:

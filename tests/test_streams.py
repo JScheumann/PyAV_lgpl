@@ -7,7 +7,7 @@ import pytest
 import av
 import av.datasets
 
-from .common import fate_suite
+from .common import fate_suite, has_libx264
 
 
 def _crc32_mpeg(data: bytes) -> int:
@@ -176,6 +176,9 @@ class TestStreams:
         assert discarded < baseline
 
     def test_printing_video_stream(self) -> None:
+        if not has_libx264:
+            pytest.skip("requires libx264")
+
         input_ = av.open(
             fate_suite("amv/MTV_high_res_320x240_sample_Penguin_Joke_MTV_from_WMV.amv")
         )
@@ -200,6 +203,9 @@ class TestStreams:
         input_.close()
 
     def test_printing_video_stream2(self) -> None:
+        if not has_libx264:
+            pytest.skip("requires libx264")
+
         input_ = av.open(fate_suite("h264/interlaced_crop.mp4"))
         input_stream = input_.streams.video[0]
         container = av.open("out.mkv", "w")

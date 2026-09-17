@@ -10,11 +10,14 @@ import pytest
 
 import av
 
-from .common import fate_suite, sandboxed
+from .common import fate_suite, has_libx264, sandboxed
 
 
 class TestDataStreams:
     def generate_container_with_data_packets(self):
+        if not has_libx264:
+            pytest.skip("requires libx264")
+
         file = io.BytesIO()
         packet_datas_expected = dict[fractions.Fraction, bytes]()
 

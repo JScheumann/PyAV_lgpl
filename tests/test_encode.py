@@ -140,6 +140,9 @@ class TestBasicVideoEncoding(TestCase):
             assert_rgb_rotate(self, input)
 
     def test_encoding_with_pts(self) -> None:
+        if not has_libx264:
+            pytest.skip("requires libx264")
+
         path = self.sandboxed("video_with_pts.mov")
 
         with av.open(path, "w") as output:
@@ -387,6 +390,9 @@ def encode_file_with_max_b_frames(max_b_frames: int) -> io.BytesIO:
 
     Returns: a file-like object.
     """
+    if not has_libx264:
+        pytest.skip("requires libx264")
+
     # Create a video file that is entirely arbitrary, but with the passed
     # max_b_frames parameter.
     file = io.BytesIO()
